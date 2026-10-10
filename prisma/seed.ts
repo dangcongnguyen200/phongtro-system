@@ -93,3 +93,29 @@ async function main() {
 main()
   .catch((e) => { console.error("❌ Seed lỗi:", e); process.exit(1); })
   .finally(async () => { await prisma.$disconnect(); });
+// ==================== ADMIN USER ====================
+async function seedAdmin() {
+  const bcrypt = await import("bcryptjs");
+  const adminEmail = "admin@phongtro.vn";
+  const existing = await prisma.user.findUnique({ where: { email: adminEmail } });
+  if (existing) {
+    console.log("⏭️  Admin đã tồn tại");
+    return;
+  }
+  const password = await bcrypt.hash("admin123456", 10);
+  const admin = await prisma.user.create({
+    data: {
+      email: adminEmail,
+      password,
+      name: "Admin",
+      phone: "0982509443",
+      role: "admin",
+      status: "active",
+    },
+  });
+  console.log(`✅ Đã tạo admin: ${adminEmail} / admin123456`);
+}
+// Chạy seed admin
+seedAdmin()
+  .then(() => console.log("🎉 Seed admin hoàn tất"))
+  .catch((e) => console.error("❌ Seed admin lỗi:", e));

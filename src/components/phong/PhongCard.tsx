@@ -17,12 +17,18 @@ export function PhongCard({ phong }: { phong: PublicPhong }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={img}
-              alt={title}
+              alt={`${title} - ${addr}`}
+              width={400}
+              height={300}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/placeholder.jpg";
+              }}
             />
           ) : (
-            <div className="w-full h-full grid place-items-center text-5xl opacity-30">��</div>
+            <div className="w-full h-full grid place-items-center text-5xl opacity-30">🏠</div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-[#060B17]/80 via-transparent to-transparent" />
           <span className="absolute top-3 left-3 bg-emerald-400 text-black text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
@@ -37,9 +43,9 @@ export function PhongCard({ phong }: { phong: PublicPhong }) {
       </Link>
       <div className="p-4 flex-1 flex flex-col">
         <Link href={`/phong/${phong.id}`} className="block">
-          <h3 className="font-bold line-clamp-1 group-hover:text-cyan-300 transition-colors text-white">
+          <h2 className="font-bold line-clamp-1 group-hover:text-cyan-300 transition-colors text-white text-base">
             {title}
-          </h3>
+          </h2>
           <p className="text-xs text-slate-400 flex items-center gap-1 mt-1.5 line-clamp-1">
             <MapPin size={12} className="text-cyan-400 shrink-0" /> {addr}
           </p>

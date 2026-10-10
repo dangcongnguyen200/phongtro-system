@@ -1,36 +1,51 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 datasource db {
-  provider  = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
-model KhuVuc {
+// ============ USER & AUTH ============
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  name          String?
+  phone         String?
+  role          String   @default("sale") // admin | sale
+  status        String   @default("active") // active | pending | banned
+  avatar        String?
+  zaloId        String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  phongs        Phong[]  @relation("SalePhongs")
+  sessions      Session[]
+  logs          UserLog[]
+  @@index([email])
+  @@index([role])
+}
+model Session {
   id        String   @id @default(cuid())
-  ten       String   @unique
-  slug      String   @unique
-  an        Boolean  @default(false)
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  phongs  Phong[]
-  diaChis DiaChi[]
-  @@index([slug])
-  @@index([an])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([token])
 }
-model DiaChi {
+model UserLog {
   id        String   @id @default(cuid())
-  text      String
-  loai      String   @default("duong")
-  khuVucId  String
+  userId    String
+  action    String
+  detail    String?
+  ip        String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  khuVuc KhuVuc  @relation(fields: [khuVucId], references: [id], onDelete: Cascade)
-  phongs Phong[]
-  @@unique([khuVucId, text])
-  @@index([khuVucId])
-  @@index([text])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([createdAt])
 }
+// ============ PHÒNG ============
 model Phong {
   id          String    @id @default(cuid())
   maPhong     String?   @unique
@@ -48,38 +63,53 @@ model Phong {
   saleTen     String?
   saleSdt     String?
   saleZalo    String?
-  status      String    @default("active")
-  nguon       String    @default("zalo")
+  status      String    @default("active") // active | locked | deleted | pending
   luotXem     Int       @default(0)
+  nguon       String    @default("admin")
   activeUntil DateTime?
   lockedAt    DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  khuVucId String?
-  diaChiId String?
-  khuVuc KhuVuc?  @relation(fields: [khuVucId], references: [id], onDelete: SetNull)
-  diaChi DiaChi?  @relation(fields: [diaChiId], references: [id], onDelete: SetNull)
-  leads  Lead[]
+  khuVucId    String?
+  diaChiId    String?
+  saleId      String?
+  khuVuc      KhuVuc?   @relation(fields: [khuVucId], references: [id])
+  diaChi      DiaChi?   @relation(fields: [diaChiId], references: [id])
+  sale        User?     @relation("SalePhongs", fields: [saleId], references: [id])
+  leads       Lead[]
   @@index([status])
   @@index([khuVucId])
-  @@index([diaChiId])
-  @@index([gia])
+  @@index([saleId])
   @@index([createdAt])
-  @@index([activeUntil])
-  @@index([maPhong])
+}
+model KhuVuc {
+  id     String   @id @default(cuid())
+  ten    String   @unique
+  slug   String   @unique
+  an     Boolean  @default(false)
+  phongs Phong[]
+  diaChis DiaChi[]
+}
+model DiaChi {
+  id       String  @id @default(cuid())
+  text     String
+  loai     String  @default("duong")
+  khuVucId String
+  khuVuc   KhuVuc  @relation(fields: [khuVucId], references: [id])
+  phongs   Phong[]
+  @@unique([khuVucId, text])
 }
 model Lead {
   id        String   @id @default(cuid())
   khachTen  String
   sdt       String
   ghiChu    String?
-  trangThai String   @default("moi")
+  trangThai String   @default("moi") // moi | da_goi | da_hen | huy
   phongId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  phong Phong? @relation(fields: [phongId], references: [id], onDelete: SetNull)
+  phong     Phong?   @relation(fields: [phongId], references: [id], onDelete: SetNull)
   @@index([trangThai])
-  @@index([phongId])
   @@index([createdAt])
 }
 model AiLog {

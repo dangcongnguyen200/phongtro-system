@@ -1,8 +1,8 @@
 ﻿"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Home, Menu, Phone, X, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Home, Menu, Phone, X, Search, User, LogIn } from "lucide-react";
 import { HOTLINE } from "@/lib/constants";
 const NAV = [
   { href: "/", label: "Trang chủ" },
@@ -11,6 +11,13 @@ const NAV = [
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<{ name?: string; role: string } | null>(null);
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => setUser(d.user))
+      .catch(() => {});
+  }, []);
   return (
     <header className="sticky top-0 z-50 glass-card border-b border-cyan-500/15 backdrop-blur-2xl">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -62,6 +69,23 @@ export default function Header() {
             <Phone size={13} className="text-emerald-400" />
             {HOTLINE}
           </a>
+          {user ? (
+            <Link
+              href={user.role === "admin" ? "/admin" : "/sale"}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-400 text-black text-xs font-black neon-cyan"
+            >
+              <User size={13} />
+              {user.role === "admin" ? "Admin" : "Sale"}
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl glass-pill text-cyan-300 text-xs font-bold hover:border-cyan-400/40"
+            >
+              <LogIn size={13} />
+              Đăng nhập
+            </Link>
+          )}
           <button
             className="md:hidden p-2 rounded-lg glass-pill text-white"
             onClick={() => setOpen((v) => !v)}
@@ -83,6 +107,13 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+          <Link
+            href={user ? (user.role === "admin" ? "/admin" : "/sale") : "/login"}
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-200 hover:bg-cyan-500/10 hover:text-cyan-300"
+          >
+            {user ? (user.role === "admin" ? "Admin Panel" : "Sale Portal") : "Đăng nhập"}
+          </Link>
           <a
             href={`tel:${HOTLINE}`}
             className="flex items-center justify-center gap-2 mt-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-black py-2.5 rounded-xl font-bold text-sm"
