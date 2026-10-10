@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+model KhuVuc {
+  id        String   @id @default(cuid())
+  ten       String   @unique
+  slug      String   @unique
+  an        Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  phongs  Phong[]
+  diaChis DiaChi[]
+  @@index([slug])
+  @@index([an])
+}
+model DiaChi {
+  id        String   @id @default(cuid())
+  text      String
+  loai      String   @default("duong")
+  khuVucId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  khuVuc KhuVuc  @relation(fields: [khuVucId], references: [id], onDelete: Cascade)
+  phongs Phong[]
+  @@unique([khuVucId, text])
+  @@index([khuVucId])
+  @@index([text])
+}
+model Phong {
+  id          String    @id @default(cuid())
+  maPhong     String?   @unique
+  gia         BigInt
+  dienTich    Float?
+  loaiPhong   String    @default("don")
+  giaDien     BigInt?
+  giaNuoc     BigInt?
+  internet    String?
+  rac         BigInt?
+  guiXe       BigInt?
+  tienIch     String    @default("[]")
+  hinhAnh     String    @default("[]")
+  moTa        String?
+  saleTen     String?
+  saleSdt     String?
+  saleZalo    String?
+  status      String    @default("active")
+  nguon       String    @default("zalo")
+  luotXem     Int       @default(0)
+  activeUntil DateTime?
+  lockedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  khuVucId String?
+  diaChiId String?
+  khuVuc KhuVuc?  @relation(fields: [khuVucId], references: [id], onDelete: SetNull)
+  diaChi DiaChi?  @relation(fields: [diaChiId], references: [id], onDelete: SetNull)
+  leads  Lead[]
+  @@index([status])
+  @@index([khuVucId])
+  @@index([diaChiId])
+  @@index([gia])
+  @@index([createdAt])
+  @@index([activeUntil])
+  @@index([maPhong])
+}
+model Lead {
+  id        String   @id @default(cuid())
+  khachTen  String
+  sdt       String
+  ghiChu    String?
+  trangThai String   @default("moi")
+  phongId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  phong Phong? @relation(fields: [phongId], references: [id], onDelete: SetNull)
+  @@index([trangThai])
+  @@index([phongId])
+  @@index([createdAt])
+}
+model AiLog {
+  id        String   @id @default(cuid())
+  action    String
+  input     String?
+  output    String?
+  createdAt DateTime @default(now())
+  @@index([action])
+  @@index([createdAt])
+}
