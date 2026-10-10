@@ -1,8 +1,9 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { MapPin, Maximize2, Phone, MessageCircle } from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { TIEN_ICH_LABEL, HOTLINE } from "@/lib/constants";
 import type { PublicPhong } from "@/lib/serialize";
+import { SafeImage } from "@/components/ui/SafeImage";
 export function PhongCard({ phong }: { phong: PublicPhong }) {
   const img = phong.hinhAnh[0];
   const title = phong.maPhong ? `Phòng ${phong.maPhong}` : "Phòng trọ";
@@ -14,23 +15,17 @@ export function PhongCard({ phong }: { phong: PublicPhong }) {
       <Link href={`/phong/${phong.id}`} className="block">
         <div className="relative aspect-[4/3] bg-slate-900 overflow-hidden">
           {img ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <SafeImage
               src={img}
               alt={`${title} - ${addr}`}
               width={400}
               height={300}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-              decoding="async"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/placeholder.jpg";
-              }}
             />
           ) : (
             <div className="w-full h-full grid place-items-center text-5xl opacity-30">🏠</div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060B17]/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#060B17]/80 via-transparent to-transparent pointer-events-none" />
           <span className="absolute top-3 left-3 bg-emerald-400 text-black text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
             🟢 Còn trống
           </span>

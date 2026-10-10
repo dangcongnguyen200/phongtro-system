@@ -1,4 +1,5 @@
-﻿import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 function slugify(s: string) {
   return s
@@ -95,7 +96,7 @@ main()
   .finally(async () => { await prisma.$disconnect(); });
 // ==================== ADMIN USER ====================
 async function seedAdmin() {
-  const bcrypt = await import("bcryptjs");
+  
   const adminEmail = "admin@phongtro.vn";
   const existing = await prisma.user.findUnique({ where: { email: adminEmail } });
   if (existing) {
