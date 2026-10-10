@@ -13,20 +13,22 @@ export async function GET(req: NextRequest) {
   };
   const khuVuc = sp.get("khuVuc");
   if (khuVuc) where.khuVuc = { an: false, slug: khuVuc };
-  if (sp.get("giaMin"))
-    where.gia = { ...(where.gia as object), gte: BigInt(sp.get("giaMin")!) };
-  if (sp.get("giaMax"))
-    where.gia = { ...(where.gia as object), lte: BigInt(sp.get("giaMax")!) };
-  if (sp.get("dienTichMin"))
+  if (sp.get("giaMin") || sp.get("giaMax")) {
+    where.gia = {};
+    if (sp.get("giaMin")) where.gia.gte = BigInt(sp.get("giaMin")!);
+    if (sp.get("giaMax")) where.gia.lte = BigInt(sp.get("giaMax")!);
+  }
+  if (sp.get("dienTichMin")) {
     where.dienTich = { gte: Number(sp.get("dienTichMin")) };
+  }
   if (sp.get("loaiPhong")) where.loaiPhong = sp.get("loaiPhong")!;
   const q = sp.get("q");
   if (q) {
     where.OR = [
-      { maPhong: { contains: q } },
-      { moTa: { contains: q } },
-      { khuVuc: { ten: { contains: q } } },
-      { diaChi: { text: { contains: q } } },
+      { maPhong: { contains: q, mode: "insensitive" } },
+      { moTa: { contains: q, mode: "insensitive" } },
+      { khuVuc: { ten: { contains: q, mode: "insensitive" } } },
+      { diaChi: { text: { contains: q, mode: "insensitive" } } },
     ];
   }
   const sort = sp.get("sort") || "newest";

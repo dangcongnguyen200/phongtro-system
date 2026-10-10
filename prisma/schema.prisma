@@ -2,27 +2,28 @@ generator client {
   provider = "prisma-client-js"
 }
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-// ============ USER & AUTH ============
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password      String
-  name          String?
-  phone         String?
-  role          String   @default("sale") // admin | sale
-  status        String   @default("active") // active | pending | banned
-  avatar        String?
-  zaloId        String?  @unique
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  phongs        Phong[]  @relation("SalePhongs")
-  sessions      Session[]
-  logs          UserLog[]
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  phone     String?
+  role      String   @default("sale")
+  status    String   @default("active")
+  avatar    String?
+  zaloId    String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  phongs   Phong[]   @relation("SalePhongs")
+  sessions Session[]
+  logs     UserLog[]
   @@index([email])
   @@index([role])
+  @@map("users")
 }
 model Session {
   id        String   @id @default(cuid())
@@ -30,9 +31,10 @@ model Session {
   token     String   @unique
   expiresAt DateTime
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
   @@index([token])
+  @@map("sessions")
 }
 model UserLog {
   id        String   @id @default(cuid())
@@ -41,11 +43,11 @@ model UserLog {
   detail    String?
   ip        String?
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId])
   @@index([createdAt])
+  @@map("user_logs")
 }
-// ============ PHÒNG ============
 model Phong {
   id          String    @id @default(cuid())
   maPhong     String?   @unique
@@ -63,54 +65,58 @@ model Phong {
   saleTen     String?
   saleSdt     String?
   saleZalo    String?
-  status      String    @default("active") // active | locked | deleted | pending
+  status      String    @default("active")
   luotXem     Int       @default(0)
   nguon       String    @default("admin")
   activeUntil DateTime?
   lockedAt    DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  khuVucId    String?
-  diaChiId    String?
-  saleId      String?
-  khuVuc      KhuVuc?   @relation(fields: [khuVucId], references: [id])
-  diaChi      DiaChi?   @relation(fields: [diaChiId], references: [id])
-  sale        User?     @relation("SalePhongs", fields: [saleId], references: [id])
-  leads       Lead[]
+  khuVucId String?
+  diaChiId String?
+  saleId   String?
+  khuVuc KhuVuc?  @relation(fields: [khuVucId], references: [id])
+  diaChi DiaChi?  @relation(fields: [diaChiId], references: [id])
+  sale   User?    @relation("SalePhongs", fields: [saleId], references: [id])
+  leads  Lead[]
   @@index([status])
   @@index([khuVucId])
   @@index([saleId])
   @@index([createdAt])
+  @@map("phongs")
 }
 model KhuVuc {
-  id     String   @id @default(cuid())
-  ten    String   @unique
-  slug   String   @unique
-  an     Boolean  @default(false)
-  phongs Phong[]
+  id      String   @id @default(cuid())
+  ten     String   @unique
+  slug    String   @unique
+  an      Boolean  @default(false)
+  phongs  Phong[]
   diaChis DiaChi[]
+  @@map("khu_vucs")
 }
 model DiaChi {
-  id       String  @id @default(cuid())
+  id       String @id @default(cuid())
   text     String
-  loai     String  @default("duong")
+  loai     String @default("duong")
   khuVucId String
-  khuVuc   KhuVuc  @relation(fields: [khuVucId], references: [id])
-  phongs   Phong[]
+  khuVuc KhuVuc   @relation(fields: [khuVucId], references: [id])
+  phongs Phong[]
   @@unique([khuVucId, text])
+  @@map("dia_chis")
 }
 model Lead {
   id        String   @id @default(cuid())
   khachTen  String
   sdt       String
   ghiChu    String?
-  trangThai String   @default("moi") // moi | da_goi | da_hen | huy
+  trangThai String   @default("moi")
   phongId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  phong     Phong?   @relation(fields: [phongId], references: [id], onDelete: SetNull)
+  phong Phong? @relation(fields: [phongId], references: [id], onDelete: SetNull)
   @@index([trangThai])
   @@index([createdAt])
+  @@map("leads")
 }
 model AiLog {
   id        String   @id @default(cuid())
@@ -120,4 +126,5 @@ model AiLog {
   createdAt DateTime @default(now())
   @@index([action])
   @@index([createdAt])
+  @@map("ai_logs")
 }

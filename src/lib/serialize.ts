@@ -1,4 +1,4 @@
-﻿import { DiaChi, KhuVuc, Phong } from "@prisma/client";
+import { DiaChi, KhuVuc, Phong } from "@prisma/client";
 import { toNum } from "./utils";
 export type PublicPhong = {
   id: string;
