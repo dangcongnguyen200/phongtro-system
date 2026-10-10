@@ -49,3 +49,5 @@ Thumbs.db
 .cache
 .temp
 .tmp
+.vercel
+.env*
