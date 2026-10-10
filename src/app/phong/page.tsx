@@ -28,16 +28,19 @@ export default async function PhongListPage({ searchParams }: Props) {
   if (searchParams.khuVuc) {
     where.khuVuc = { an: false, slug: searchParams.khuVuc };
   }
-  if (searchParams.giaMin) where.gia = { ...(where.gia as object), gte: BigInt(searchParams.giaMin) };
-  if (searchParams.giaMax) where.gia = { ...(where.gia as object), lte: BigInt(searchParams.giaMax) };
-  if (searchParams.dienTichMin) where.dienTich = { gte: Number(searchParams.dienTichMin) };
+  if (searchParams.giaMin)
+    where.gia = { ...(where.gia as object), gte: BigInt(searchParams.giaMin) };
+  if (searchParams.giaMax)
+    where.gia = { ...(where.gia as object), lte: BigInt(searchParams.giaMax) };
+  if (searchParams.dienTichMin)
+    where.dienTich = { gte: Number(searchParams.dienTichMin) };
   if (searchParams.q) {
     const q = searchParams.q;
     where.OR = [
-      { maPhong: { contains: q, mode: "insensitive" } },
-      { moTa: { contains: q, mode: "insensitive" } },
-      { diaChi: { text: { contains: q, mode: "insensitive" } } },
-      { khuVuc: { ten: { contains: q, mode: "insensitive" } } },
+      { maPhong: { contains: q } },
+      { moTa: { contains: q } },
+      { diaChi: { text: { contains: q } } },
+      { khuVuc: { ten: { contains: q } } },
     ];
   }
 
@@ -62,8 +65,17 @@ export default async function PhongListPage({ searchParams }: Props) {
       <p className="text-gray-500 mb-6">{total} phòng đang hiển thị</p>
 
       <form className="bg-white border border-gray-100 rounded-2xl p-4 mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-        <input name="q" defaultValue={searchParams.q} placeholder="Từ khóa" className="px-3 py-2 border rounded-lg col-span-2 md:col-span-1" />
-        <select name="khuVuc" defaultValue={searchParams.khuVuc || ""} className="px-3 py-2 border rounded-lg">
+        <input
+          name="q"
+          defaultValue={searchParams.q}
+          placeholder="Từ khóa"
+          className="px-3 py-2 border rounded-lg col-span-2 md:col-span-1"
+        />
+        <select
+          name="khuVuc"
+          defaultValue={searchParams.khuVuc || ""}
+          className="px-3 py-2 border rounded-lg"
+        >
           <option value="">Tất cả khu vực</option>
           {khuVucs.map((k) => (
             <option key={k.id} value={k.slug}>
@@ -71,7 +83,11 @@ export default async function PhongListPage({ searchParams }: Props) {
             </option>
           ))}
         </select>
-        <select name="giaMax" defaultValue={searchParams.giaMax || ""} className="px-3 py-2 border rounded-lg">
+        <select
+          name="giaMax"
+          defaultValue={searchParams.giaMax || ""}
+          className="px-3 py-2 border rounded-lg"
+        >
           <option value="">Giá</option>
           <option value="2000000">&lt; 2tr</option>
           <option value="3000000">&lt; 3tr</option>
@@ -83,11 +99,15 @@ export default async function PhongListPage({ searchParams }: Props) {
           placeholder="m² tối thiểu"
           className="px-3 py-2 border rounded-lg"
         />
-        <button className="bg-blue-600 text-white rounded-lg font-medium">Lọc</button>
+        <button className="bg-blue-600 text-white rounded-lg font-medium">
+          Lọc
+        </button>
       </form>
 
       {items.length === 0 ? (
-        <p className="text-center text-gray-500 py-16">Không có phòng phù hợp.</p>
+        <p className="text-center text-gray-500 py-16">
+          Không có phòng phù hợp.
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((p) => (

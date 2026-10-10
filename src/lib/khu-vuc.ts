@@ -5,7 +5,7 @@ export async function findOrCreateKhuVuc(ten: string) {
   const name = ten.trim();
   const slug = slugify(name);
   const existing = await prisma.khuVuc.findFirst({
-    where: { OR: [{ slug }, { ten: { equals: name, mode: "insensitive" } }] },
+    where: { OR: [{ slug }, { ten: { equals: name } }] },
   });
   if (existing) return existing;
   return prisma.khuVuc.create({ data: { ten: name, slug } });
@@ -14,7 +14,7 @@ export async function findOrCreateKhuVuc(ten: string) {
 export async function findOrCreateDiaChi(khuVucId: string, text: string) {
   const t = text.trim();
   const existing = await prisma.diaChi.findFirst({
-    where: { khuVucId, text: { equals: t, mode: "insensitive" } },
+    where: { khuVucId, text: { equals: t } },
   });
   if (existing) return existing;
   return prisma.diaChi.create({ data: { khuVucId, text: t, loai: "duong" } });

@@ -1,4 +1,4 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/utils";
 import { buildDailyReport } from "./report";
 export type CommandResult = { handled: boolean; message: string };
@@ -16,7 +16,7 @@ async function findPhong(code: string) {
     where: {
       status: { not: "deleted" },
       OR: [
-        { maPhong: { equals: code, mode: "insensitive" } },
+        { maPhong: { equals: code } },
         { id: code },
       ],
     },
@@ -195,7 +195,7 @@ export async function runOwnerCommand(text: string): Promise<CommandResult> {
   if (anKv) {
     const ten = anKv[1].trim();
     const kv = await prisma.khuVuc.findFirst({
-      where: { ten: { equals: ten, mode: "insensitive" } },
+      where: { ten: { equals: ten } },
     });
     if (!kv) return { handled: true, message: `Không thấy khu vực ${ten}.` };
     await prisma.khuVuc.update({ where: { id: kv.id }, data: { an: true } });
