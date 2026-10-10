@@ -51,3 +51,5 @@ Thumbs.db
 .tmp
 .vercel
 .env*
+
+*.bak
